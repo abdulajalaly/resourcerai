@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import "../app/globals.css";
+import { ThemeProvider } from "../components/ui/theme-provider";
+import Link from "next/link";
+import { Button } from "../components/ui/button";
+import { ThemeToggle } from "../components/ThemeToggle";
+import { Navbar } from "../components/Navbar";
+import { Footer } from "../components/Footer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -24,12 +31,41 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        {/* Liquid drop animated background */}
+        <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+          <div className="absolute top-[20%] left-[10%] w-[500px] h-[300px] bg-white opacity-10 rounded-full blur-3xl animate-liquid1" />
+          <div className="absolute top-[60%] left-[60%] w-[400px] h-[240px] bg-white opacity-10 rounded-full blur-3xl animate-liquid2" />
+          <div className="absolute top-[40%] left-[40%] w-[300px] h-[180px] bg-white opacity-10 rounded-full blur-2xl animate-liquid3" />
+        </div>
+        <Navbar />
+        <div className="pt-24 min-h-screen">{children}</div>
+        <Footer />
       </body>
     </html>
   );
 }
+
+/* Add to the bottom of the file for global styles: */
+/*
+@layer utilities {
+  @keyframes liquid1 {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(60px) scale(1.1); }
+  }
+  @keyframes liquid2 {
+    0%, 100% { transform: translateX(0) scale(1); }
+    50% { transform: translateX(-80px) scale(1.08); }
+  }
+  @keyframes liquid3 {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(40px, -40px) scale(1.12); }
+  }
+  .animate-liquid1 { animation: liquid1 16s ease-in-out infinite; }
+  .animate-liquid2 { animation: liquid2 22s ease-in-out infinite; }
+  .animate-liquid3 { animation: liquid3 18s ease-in-out infinite; }
+}
+*/

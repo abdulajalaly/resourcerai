@@ -38,3 +38,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Sanity
+/sanity/.env
+/sanity/node_modules
+
+# Sanity generated
+/lib/sanity.generated.ts
+/lib/sanity.types.ts

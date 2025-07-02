@@ -1,0 +1,153 @@
+html {
+  font-size: 20px;
+  background: #000;
+  color: #fff;
+}
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background: #000;
+  color: #fff;
+}
+
+.liquid-bg {
+  background: rgba(255, 255, 255, 0.3);
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  transition: background 0.3s, border 0.3s;
+}
+.dark .liquid-bg {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+}
+.liquid-bg {
+  @apply border border-white/30 dark:border-black/30 backdrop-blur-3xl;
+}
+
+.liquid-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: url('data:image/svg+xml;utf8,<svg width="100%25" height="100%25" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg"><filter id="wavy"><feTurbulence type="fractalNoise" baseFrequency="0.01 0.02" numOctaves="2" result="turb" seed="2"/><feDisplacementMap in2="turb" in="SourceGraphic" scale="10" xChannelSelector="R" yChannelSelector="G"/></filter><rect width="400" height="400" fill="white" fill-opacity="0.05" filter="url(%23wavy)"/></svg>');
+  opacity: 0.7;
+  z-index: 1;
+  animation: liquidWaves 8s linear infinite alternate;
+}
+@keyframes liquidWaves {
+  0% {
+    filter: blur(0px);
+  }
+  100% {
+    filter: blur(4px);
+  }
+}
+
+.liquid-hover {
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.liquid-hover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--x, 50%) var(--y, 50%),
+    rgba(255, 255, 255, 0.18) 0%,
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 2;
+}
+.liquid-hover:hover::before {
+  opacity: 1;
+}
+.liquid-hover:active::before {
+  opacity: 0.7;
+}
+
+.container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 5rem;
+  padding-right: 5rem;
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
+.section {
+  padding-top: 10rem;
+  padding-bottom: 10rem;
+}
+.page-mx {
+  margin-left: 8rem;
+  margin-right: 8rem;
+}
+
+h1 {
+  font-size: 3.5rem;
+  font-weight: bold;
+  letter-spacing: -0.03em;
+}
+h2 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: -0.02em;
+}
+h3 {
+  font-size: 2rem;
+  font-weight: bold;
+}
+h4 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Liquid hover JS helper (for pointer position) */
+.liquid-hover {
+  --x: 50%;
+  --y: 50%;
+}
+
+@layer utilities {
+  @keyframes liquid1 {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(60px) scale(1.1);
+    }
+  }
+  @keyframes liquid2 {
+    0%,
+    100% {
+      transform: translateX(0) scale(1);
+    }
+    50% {
+      transform: translateX(-80px) scale(1.08);
+    }
+  }
+  @keyframes liquid3 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(40px, -40px) scale(1.12);
+    }
+  }
+  .animate-liquid1 {
+    animation: liquid1 16s ease-in-out infinite;
+  }
+  .animate-liquid2 {
+    animation: liquid2 22s ease-in-out infinite;
+  }
+  .animate-liquid3 {
+    animation: liquid3 18s ease-in-out infinite;
+  }
+}

@@ -55,7 +55,8 @@ export default async function handler(
         .commit();
       await client.patch(tool._id).inc({ likes: 1 }).commit();
       return res.status(200).json({ success: true });
-    } catch (e) {
+    } catch (error) {
+      console.error(error); // Log the error instead of using 'e'
       return res.status(500).json({ error: "Failed to like tool" });
     }
   }

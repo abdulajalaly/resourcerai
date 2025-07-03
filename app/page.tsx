@@ -1,67 +1,75 @@
-"use client";
-import { Hero } from "../components/Hero";
-import { GlassWrapper } from "../components/GlassWrapper";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { fetchAITools, fetchRecentBlogs, urlFor } from "../lib/sanity";
-import { useEffect, useState } from "react";
-import { PortableText } from "@portabletext/react";
-import { ToolCard } from "../components/ToolCard";
-import { BlogCard } from "../components/BlogCard";
+import { ClientHomeContent } from "../components/ClientHomeContent";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Resourcer.ai – Discover the Best AI Tools for Every Workflow",
+  description:
+    "Explore a curated directory of the best AI tools across categories like productivity, content creation, automation, and more. Stay ahead with expert insights and reviews.",
+  keywords: [
+    "AI tools directory",
+    "best AI tools",
+    "AI tool reviews",
+    "free AI tools",
+    "AI tools for business",
+    "AI tools for content creation",
+    "AI video generator tools",
+    "AI tools for startups",
+    "GPT-powered tools",
+    "how to use AI in daily work",
+    "top AI trends 2025",
+    "AI for productivity",
+    "open-source AI tools",
+  ],
+  openGraph: {
+    title: "Resourcer.ai – Discover the Best AI Tools for Every Workflow",
+    description:
+      "Explore a curated directory of the best AI tools across categories like productivity, content creation, automation, and more. Stay ahead with expert insights and reviews.",
+    url: "https://resourcerai.vercel.app/",
+    images: ["/window.svg"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Resourcer.ai – Discover the Best AI Tools for Every Workflow",
+    description:
+      "Explore a curated directory of the best AI tools across categories like productivity, content creation, automation, and more. Stay ahead with expert insights and reviews.",
+    images: ["/window.svg"],
+  },
+};
 
 export default function HomePage() {
-  const [tools, setTools] = useState<any[]>([]);
-  const [blogs, setBlogs] = useState<any[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      setTools(await fetchAITools());
-      setBlogs(await fetchRecentBlogs());
-    })();
-  }, []);
-
   return (
-    <main className="page-mx">
-      <Hero />
-      {/* Best Tools Section */}
-      <section className="section container">
-        <GlassWrapper className="mb-12 p-8 liquid-bg">
-          <h2 className="text-4xl font-bold mb-8 text-black dark:text-white text-center">
-            🔥 Most Popular AI Tools
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full justify-center">
-            {tools.slice(0, 4).map((tool: any) => (
-              <ToolCard
-                key={tool._id}
-                tool={tool}
-                variant="home"
-                showDescription={true}
-                showPrice={true}
-                showButton={true}
-                buttonText="View Details"
-                href={`/tools/${tool.slug.current}`}
-              />
-            ))}
-          </div>
-        </GlassWrapper>
-      </section>
-      {/* Recent Blog Posts Section */}
-      <section className="section container">
-        <GlassWrapper className="mb-12 p-8 liquid-bg">
-          <h2 className="text-4xl font-bold mb-8 text-black dark:text-white text-center">
-            📝 From the Blog
-          </h2>
-          <div className="grid md:grid-cols-3 gap-12">
-            {blogs.map((blog: any) => (
-              <BlogCard
-                key={blog._id}
-                blog={blog}
-                href={`/blog/${blog.slug.current}`}
-              />
-            ))}
-          </div>
-        </GlassWrapper>
-      </section>
-    </main>
+    <>
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Resourcer.ai",
+            url: "https://resourcer.ai/",
+            logo: "/window.svg",
+            sameAs: [
+              "https://twitter.com/resourcerai",
+              "https://linkedin.com/company/resourcerai",
+            ],
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "Resourcer.ai – Discover the Best AI Tools for Every Workflow",
+            url: "https://resourcerai.vercel.app/",
+          }),
+        }}
+      />
+      <ClientHomeContent />
+    </>
   );
 }

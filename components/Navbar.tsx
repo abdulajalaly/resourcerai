@@ -3,13 +3,10 @@ import { GlassWrapper } from "./GlassWrapper";
 import { ThemeToggle } from "./ThemeToggle";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import { Search, Menu, X } from "lucide-react";
 import { Input } from "./ui/input";
-import { ToolCard } from "./ToolCard";
 
 export function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [show, setShow] = useState(true);
   const lastScrollY = useRef(0);
@@ -17,7 +14,6 @@ export function Navbar() {
 
   useEffect(() => {
     const onScroll = () => {
-      setScrolled(window.scrollY > 10);
       if (window.scrollY > lastScrollY.current && window.scrollY > 80) {
         setShow(false); // scrolling down, hide
       } else {
@@ -151,15 +147,9 @@ export function Navbar() {
 
 function SearchModal({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState("");
-  const [tools, setTools] = useState<any[]>([]);
-  const [filtered, setFiltered] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    (async () => {
-      const res = await fetch("/api/tools/all");
-      setTools(await res.json());
-    })();
     setTimeout(() => inputRef.current?.focus(), 100);
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -167,24 +157,6 @@ function SearchModal({ onClose }: { onClose: () => void }) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
-
-  useEffect(() => {
-    if (!query) setFiltered([]);
-    else {
-      setFiltered(
-        tools.filter(
-          (tool: any) =>
-            tool.name.toLowerCase().includes(query.toLowerCase()) ||
-            (tool.description &&
-              tool.description
-                .map((b: any) => b.children?.map((c: any) => c.text).join(" "))
-                .join(" ")
-                .toLowerCase()
-                .includes(query.toLowerCase()))
-        )
-      );
-    }
-  }, [query, tools]);
 
   return (
     <div
@@ -199,33 +171,16 @@ function SearchModal({ onClose }: { onClose: () => void }) {
           ref={inputRef}
           autoFocus
           placeholder="Search tools by name or description..."
-          className="w-full text-lg"
+          className="w-full text-lg rounded-full px-6 py-3 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <div className="w-full max-h-96 overflow-y-auto flex flex-col gap-2 mt-2">
-          {query && filtered.length === 0 && (
+          {query && (
             <div className="text-center text-black/60 dark:text-white/60 text-sm">
               No tools found.
             </div>
           )}
-          {filtered.map((tool) => (
-            <Link
-              key={tool._id}
-              href={`/tools/${tool.slug.current}`}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition"
-              onClick={onClose}
-            >
-              <img
-                src={`https://www.google.com/s2/favicons?sz=64&domain_url=${tool.websiteUrl}`}
-                alt="favicon"
-                className="w-6 h-6"
-              />
-              <span className="text-base text-black dark:text-white font-medium truncate max-w-[200px]">
-                {tool.name}
-              </span>
-            </Link>
-          ))}
         </div>
         <button
           className="mt-2 px-6 py-2 rounded-full liquid-bg liquid-hover text-black dark:text-white font-semibold text-lg"

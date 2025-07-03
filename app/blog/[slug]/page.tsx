@@ -2,6 +2,8 @@ import { sanityClient, urlFor } from "../../../lib/sanity";
 import { PortableText } from "@portabletext/react";
 import Link from "next/link";
 import { Button } from "../../../components/ui/button";
+import Image from "next/image";
+import { Metadata } from "next";
 
 async function fetchBlogPost(slug: string) {
   return sanityClient.fetch(
@@ -12,18 +14,68 @@ async function fetchBlogPost(slug: string) {
   );
 }
 
-export default async function BlogPostPage({
+type tParams = Promise<{ slug: string }>;
+
+export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
-}) {
-  const post = await fetchBlogPost(params.slug);
+  params: tParams;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await fetchBlogPost(slug);
+  return {
+    title: `${post.title} | Resourcer AI Blog`,
+    description:
+      post.content?.[0]?.children?.[0]?.text ||
+      `Read about ${post.title} on Resourcer AI Blog`,
+    keywords: [
+      post.title,
+      "AI blog",
+      "AI article",
+      post.blogCategory?.title,
+    ].filter(Boolean),
+    openGraph: {
+      title: `${post.title} | Resourcer AI Blog`,
+      description:
+        post.content?.[0]?.children?.[0]?.text ||
+        `Read about ${post.title} on Resourcer AI Blog`,
+      url: `https://resourcer.ai/blog/${post.slug.current}`,
+      images: post.coverImage
+        ? [urlFor(post.coverImage).width(800).height(320).url()]
+        : [],
+    },
+  };
+}
+
+export default async function Page({ params }: { params: tParams }) {
+  const { slug } = await params;
+  const post = await fetchBlogPost(slug);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.content?.[0]?.children?.[0]?.text || undefined,
+    author: post.author?.name,
+    datePublished: post.publishedAt,
+    image: post.coverImage
+      ? urlFor(post.coverImage).width(800).height(320).url()
+      : undefined,
+    url: `https://resourcer.ai/blog/${post.slug.current}`,
+    mainEntityOfPage: `https://resourcer.ai/blog/${post.slug.current}`,
+  };
   return (
     <main className="container mx-auto px-4 py-16 max-w-3xl flex flex-col items-center">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {post.coverImage && (
-        <img
+        <Image
           src={urlFor(post.coverImage).width(800).height(320).url()}
           alt={post.title}
+          width={800}
+          height={320}
           className="h-64 w-full object-cover rounded-2xl mb-10"
         />
       )}
@@ -53,9 +105,11 @@ export default async function BlogPostPage({
       </article>
       <div className="flex items-center gap-6 mb-12">
         {post.author?.avatar && (
-          <img
+          <Image
             src={urlFor(post.author.avatar).width(120).height(120).url()}
             alt={post.author.name}
+            width={120}
+            height={120}
             className="h-16 w-16 rounded-full"
           />
         )}

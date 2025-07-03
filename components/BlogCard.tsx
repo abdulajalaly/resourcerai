@@ -2,33 +2,59 @@ import React from "react";
 import Link from "next/link";
 import { Card } from "./ui/card";
 import { urlFor } from "../lib/sanity";
+import Image from "next/image";
+
+interface BlogBlock {
+  _type: string;
+  children?: BlogChild[];
+}
+
+interface BlogChild {
+  text: string;
+}
 
 export interface BlogCardProps {
-  blog: any;
-  href?: string;
+  blog: {
+    title: string;
+    description: string;
+    imageUrl: string;
+    link: string;
+    content: BlogBlock[];
+    coverImage: unknown;
+    blogCategory: {
+      title: string;
+      slug: {
+        current: string;
+      };
+    };
+  };
+  href: string;
 }
 
 export const BlogCard: React.FC<BlogCardProps> = ({ blog, href }) => {
-  // Get first paragraph block for preview
-  const firstParagraph =
-    blog.content && Array.isArray(blog.content)
-      ? [blog.content.find((block: any) => block._type === "block")]
-      : [];
-  // Get plain text for truncation
+  // Removed unused variables
+  const firstParagraph = [
+    blog.content.find((block: BlogBlock) => block._type === "block"),
+  ];
   const plainText =
     firstParagraph
-      .map((block: any) => block?.children?.map((c: any) => c.text).join(" "))
+      .map((block: BlogBlock | undefined) =>
+        block?.children?.map((c: BlogChild) => c.text).join(" ")
+      )
       .join(" ") || "";
   const truncated =
     plainText.length > 200 ? plainText.slice(0, 200) + "..." : plainText;
+
   return (
     <Card className="flex flex-col gap-2 items-start p-6 w-[320px] max-w-full relative">
       <div className="w-full h-40 mb-2 relative">
         {blog.coverImage ? (
-          <img
+          <Image
             src={urlFor(blog.coverImage).width(600).height(240).url()}
             alt={blog.title}
             className="h-40 w-full object-cover rounded-2xl"
+            width={600}
+            height={240}
           />
         ) : (
           <div className="h-40 w-full rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center" />

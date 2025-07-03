@@ -1,11 +1,14 @@
-import { sanityClient, urlFor } from "../../../lib/sanity";
+import { sanityClient } from "../../../lib/sanity";
 import { Button } from "../../../components/ui/button";
-import Link from "next/link";
 import { LikeButton } from "../../../components/LikeButton";
 import { PortableText } from "@portabletext/react";
 import { ToolCard } from "../../../components/ToolCard";
 import { ToolViewTracker } from "./ToolViewTracker";
 import { Eye } from "lucide-react";
+import Image from "next/image";
+import type { Tool } from "../../../components/ToolCard";
+import { ToolScreenshot } from "../../../components/ToolScreenshot";
+import { Metadata } from "next";
 
 async function fetchTool(slug: string) {
   return sanityClient.fetch(
@@ -25,38 +28,89 @@ async function fetchRelated(categoryId: string, excludeId: string) {
   );
 }
 
-export default async function ToolDetailPage({
+type tParams = Promise<{ slug: string }>;
+
+export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
-}) {
-  const tool = await fetchTool(params.slug);
-  const related = tool?.category?._id
+  params: tParams;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const tool = await fetchTool(slug);
+  return {
+    title: `${tool.name} | Resourcer AI Tool Directory`,
+    description:
+      tool.description?.[0]?.children?.[0]?.text ||
+      `Discover ${tool.name}, an AI tool in the ${tool.category?.title} category.`,
+    keywords: [
+      tool.name,
+      tool.category?.title,
+      "AI tool",
+      "AI directory",
+      ...(tool.tags || []),
+    ],
+    openGraph: {
+      title: `${tool.name} | Resourcer AI Tool Directory`,
+      description:
+        tool.description?.[0]?.children?.[0]?.text ||
+        `Discover ${tool.name}, an AI tool in the ${tool.category?.title} category.`,
+      url: `https://resourcer.ai/tools/${tool.slug.current}`,
+      images: tool.logo ? [tool.logo] : [],
+    },
+  };
+}
+
+export default async function Page({ params }: { params: tParams }) {
+  const { slug } = await params;
+  const tool = await fetchTool(slug);
+  const related: Tool[] = tool?.category?._id
     ? await fetchRelated(tool.category._id, tool._id)
     : [];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: tool.name,
+    description: tool.description?.[0]?.children?.[0]?.text || undefined,
+    url: tool.websiteUrl,
+    category: tool.category?.title,
+    offers: tool.price ? { "@type": "Offer", price: tool.price } : undefined,
+    aggregateRating: tool.likes
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: tool.likes,
+          reviewCount: tool.views,
+        }
+      : undefined,
+  };
+
   return (
     <main className="container mx-auto px-4 py-16 max-w-2xl flex flex-col items-center">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ToolViewTracker slug={tool.slug.current} />
       <div className="flex flex-col sm:flex-row items-center gap-8 mb-10 w-full justify-center">
         <div className="w-[640px] h-[360px] rounded-2xl overflow-hidden bg-white/10 dark:bg-black/10 flex items-center justify-center mx-auto">
-          <img
-            src={
-              tool.logo
-                ? urlFor(tool.logo).width(640).height(360).url()
-                : `https://api.microlink.io/?url=${tool.websiteUrl}&screenshot=true&embed=screenshot.url`
-            }
+          <ToolScreenshot
+            logo={tool.logo}
+            websiteUrl={tool.websiteUrl}
             alt={tool.name}
-            className="w-full h-full object-cover rounded-2xl"
+            width={640}
+            height={360}
           />
         </div>
       </div>
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <img
+          <Image
             src={`https://www.google.com/s2/favicons?sz=64&domain_url=${tool.websiteUrl}`}
             alt="favicon"
             className="w-6 h-6"
+            width={64}
+            height={64}
           />
           <h1 className="text-4xl font-extrabold text-black dark:text-white">
             {tool.name}
@@ -107,7 +161,7 @@ export default async function ToolDetailPage({
             Related Tools
           </h2>
           <div className="flex gap-6 justify-center flex-wrap">
-            {related.map((rel: any) => (
+            {related.map((rel: Tool) => (
               <ToolCard
                 key={rel._id}
                 tool={rel}

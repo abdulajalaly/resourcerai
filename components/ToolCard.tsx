@@ -3,16 +3,34 @@ import Link from "next/link";
 import { Card } from "./ui/card";
 import { GlassWrapper } from "./GlassWrapper";
 import { ThumbsUp, Eye } from "lucide-react";
-import { urlFor } from "../lib/sanity";
-import { PortableText } from "@portabletext/react";
+import Image from "next/image";
+import { ToolScreenshot } from "./ToolScreenshot";
+
+export interface Tool {
+  _id: string;
+  slug: { current: string };
+  name: string;
+  websiteUrl: string;
+  price?: string;
+  likes: number;
+  views: number;
+  description?: unknown;
+  logo?: string;
+  tags?: string[];
+  category?: { _id: string; title: string; slug: { current: string } };
+}
+
+// Types for Sanity block content
+type SanityChild = { text: string };
+type SanityBlock = { _type: string; children?: SanityChild[] };
 
 export interface ToolCardProps {
-  tool: any;
+  tool: Tool;
   variant?: "directory" | "home";
   onClick?: () => void;
   showDescription?: boolean;
-  showPrice?: boolean;
   showButton?: boolean;
+  showPrice?: boolean;
   buttonText?: string;
   href?: string;
 }
@@ -22,23 +40,25 @@ export const ToolCard: React.FC<ToolCardProps> = ({
   variant = "directory",
   onClick,
   showDescription = true,
-  showPrice = true,
   showButton = true,
+  showPrice = true,
   buttonText = "View Details",
   href = "",
 }) => {
   // Get first paragraph block for preview
-  const firstParagraph =
-    tool.description && Array.isArray(tool.description)
-      ? [tool.description.find((block: any) => block._type === "block")]
-      : [];
-  // Get plain text for truncation
-  const plainText =
-    firstParagraph
-      .map((block: any) => block?.children?.map((c: any) => c.text).join(" "))
-      .join(" ") || "";
-  const truncated =
-    plainText.length > 200 ? plainText.slice(0, 200) + "..." : plainText;
+  let truncated = "";
+  if (Array.isArray(tool.description)) {
+    const firstBlock = tool.description.find(
+      (block: SanityBlock) => block && block._type === "block"
+    );
+    if (firstBlock && Array.isArray(firstBlock.children)) {
+      const plainText = firstBlock.children
+        .map((c: SanityChild) => c.text)
+        .join(" ");
+      truncated =
+        plainText.length > 200 ? plainText.slice(0, 200) + "..." : plainText;
+    }
+  }
   return (
     <Card
       className={`flex flex-col items-center gap-3 shadow-xl liquid-bg transition-all ${
@@ -54,26 +74,26 @@ export const ToolCard: React.FC<ToolCardProps> = ({
           variant === "home" ? "h-36" : "h-40"
         } rounded-2xl overflow-hidden flex items-center justify-center bg-white/10 dark:bg-black/10 mb-2`}
       >
-        <img
-          src={
-            tool.logo
-              ? urlFor(tool.logo).width(336).height(189).url()
-              : `https://api.microlink.io/?url=${tool.websiteUrl}&screenshot=true&embed=screenshot.url`
-          }
+        <ToolScreenshot
+          logo={tool.logo}
+          websiteUrl={tool.websiteUrl}
           alt={tool.name}
-          className="w-full h-full object-cover rounded-2xl"
+          width={336}
+          height={189}
         />
       </div>
       <div className="flex items-center gap-2 mb-1 w-full justify-center">
-        <img
+        <Image
           src={`https://www.google.com/s2/favicons?sz=64&domain_url=${tool.websiteUrl}`}
           alt="favicon"
           className="w-6 h-6"
+          width={24}
+          height={24}
         />
         <span className="font-bold text-lg text-black dark:text-white text-center break-words max-w-[220px]">
           {tool.name}
         </span>
-        {tool.price && (
+        {showPrice && tool.price && (
           <span className="ml-2 px-2 py-1 rounded-full text-xs font-semibold bg-black/10 dark:bg-white/10 text-black dark:text-white">
             {tool.price}
           </span>

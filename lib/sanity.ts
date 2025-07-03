@@ -1,5 +1,6 @@
 import { createClient } from "next-sanity";
 import imageUrlBuilder from "@sanity/image-url";
+import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
 
 export const config = {
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
@@ -9,8 +10,8 @@ export const config = {
 };
 
 export const sanityClient = createClient(config);
-export const urlFor = (source: unknown) =>
-  imageUrlBuilder(config).image(source as any);
+export const urlFor = (source: SanityImageSource) =>
+  imageUrlBuilder(config).image(source);
 
 // Example GROQ queries
 export const fetchAITools = async () =>

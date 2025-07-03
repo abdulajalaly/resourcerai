@@ -7,7 +7,6 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./sanity/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/shadcn-ui/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {

@@ -17,7 +17,8 @@ export default async function handler(
       _id, name, slug, description, logo, websiteUrl, views, likes, price
     }`);
     res.status(200).json(tools);
-  } catch (e) {
+  } catch (error) {
+    console.error(error); // Log the error instead of using 'e'
     res.status(500).json({ error: "Failed to fetch tools" });
   }
 }

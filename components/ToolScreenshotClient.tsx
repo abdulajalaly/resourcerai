@@ -20,23 +20,22 @@ export default function ToolScreenshotClient({
 }: ToolScreenshotProps) {
   const [imgError, setImgError] = useState(false);
   if (logo && !imgError) {
-    // Try to load the Sanity image with <img> so we can use onError for fallback
+    // Try to load the Sanity image with <Image> so we can use onError for fallback
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={urlFor(logo).width(width).height(height).url()}
         alt={alt}
         width={width}
         height={height}
         className="w-full h-full object-cover rounded-2xl"
         onError={() => setImgError(true)}
+        unoptimized
       />
     );
   }
   if (websiteUrl && !imgError) {
-    // eslint-disable-next-line @next/next/no-img-element
     return (
-      <img
+      <Image
         src={`https://api.microlink.io/?url=${encodeURIComponent(
           websiteUrl
         )}&screenshot=true&embed=screenshot.url`}
@@ -45,6 +44,7 @@ export default function ToolScreenshotClient({
         height={height}
         className="w-full h-full object-cover rounded-2xl"
         onError={() => setImgError(true)}
+        unoptimized
       />
     );
   }

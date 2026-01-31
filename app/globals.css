@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #fff;
+  color: #000;
+  font-family: "Inter", system-ui, sans-serif;
+  transition: background 0.3s, color 0.3s;
+}
+
+.dark body {
+  background: #000;
+  color: #fff;
+}
+
+/* Section and card spacing */
+.section {
+  @apply py-20 md:py-32;
+}
+.container {
+  @apply max-w-[1200px] mx-auto px-6 md:px-12;
+}
+
+/* Liquid glass effect utility */
+.liquid-bg {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  transition: background 0.3s, border 0.3s;
+}
+.dark .liquid-bg {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+}
+.liquid-hover:hover,
+.liquid-hover:focus {
+  background: rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 2px 32px 0 rgba(0, 0, 0, 0.08);
+}
+.dark .liquid-hover:hover,
+.dark .liquid-hover:focus {
+  background: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 2px 32px 0 rgba(255, 255, 255, 0.08);
+}
